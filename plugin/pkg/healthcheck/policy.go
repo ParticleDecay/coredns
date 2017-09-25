@@ -114,6 +114,7 @@ func (r *RoundRobin) Select(pool HostPool) *UpstreamHost {
 	host := pool[selection]
 	// if the currently selected host is down, just ffwd to up host
 	for i := uint32(1); host.Down() && i < poolLen; i++ {
+		println("DOWN", host.Down())
 		host = pool[(selection+i)%poolLen]
 	}
 	return host
