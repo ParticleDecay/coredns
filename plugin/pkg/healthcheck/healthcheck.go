@@ -95,6 +95,8 @@ func (u *HealthCheck) Stop() error {
 // otherwise checks will back up, potentially a lot of them if a host is
 // absent for a long time.  This arrangement makes checks quickly see if
 // they are the only one running and abort otherwise.
+
+// HealthCheckURL performs the http.Get that implements healthcheck.
 func (uh *UpstreamHost) HealthCheckURL() {
 	// Lock for our bool check.  We don't just defer the unlock because
 	// we don't want the lock held while http.Get runs.
