@@ -126,21 +126,20 @@ func (p Proxy) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (
 				}
 			}
 
-			// Kick off healthcheck on eveyry third failure.
-			if fails := atomic.LoadInt32(&host.Fails); fails%3 == 0 {
-				go host.HealthCheckURL()
-			}
-
 			timeout := host.FailTimeout
 			if timeout == 0 {
 				timeout = defaultFailTimeout
 			}
 
 			atomic.AddInt32(&host.Fails, 1)
+			fails := atomic.LoadInt32(&host.Fails)
 
 			go func(host *healthcheck.UpstreamHost, timeout time.Duration) {
 				time.Sleep(timeout)
 				atomic.AddInt32(&host.Fails, -1)
+				if fails%3 == 0 { // Kick off healthcheck on eveyry third failure.
+					host.HealthCheckURL()
+				}
 			}(host, timeout)
 		}
 
